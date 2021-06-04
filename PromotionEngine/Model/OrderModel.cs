@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PromotionEngine.Model
 {
-   public class OrderModel
+    public class OrderModel
     {
         public int OrderId { get; set; }
         public List<ProductModel> SKU { get; set; }

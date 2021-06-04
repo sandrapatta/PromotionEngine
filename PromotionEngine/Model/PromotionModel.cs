@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PromotionEngine.Model
 {
-   public class PromotionModel
+    public class PromotionModel
     {
         public int PromotionID { get; set; }
 
@@ -12,8 +10,6 @@ namespace PromotionEngine.Model
         public char ProdCode { get; set; }
         public int ProdQuantity { get; set; }
         public decimal Price { get; set; }
-         
-
         public PromotionModel(int id, Dictionary<char, int> promInfo, decimal price)
         {
             PromotionID = id;

@@ -3,7 +3,6 @@ using PromotionEngine.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PromotionEngine.ProductModule
 {
@@ -23,22 +22,25 @@ namespace PromotionEngine.ProductModule
             List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel);
 
             decimal origprice = OrderModel.SKU.Sum(x => x.UnitPrice);
-            decimal promoprice = promoprices.Sum(x=>x.AppliedPromotionValue);
+            OrderModel.OrderTotal = OrderModel.SKU.Sum(x => x.UnitPrice);
+            decimal promoprice = promoprices.Sum(x => x.AppliedPromotionValue);
+           
+            OrderModel.Discount = promoprices.Sum(x => x.AppliedPromotionValue);
             decimal residueprice = 0;
             foreach (var pp in promoprices)
-                {
-                  char  id = pp.PromId;
-                  var residueprice1 = OrderModel.SKU.Where(x => x.ProductId == id);
+            {
+                char id = pp.PromId;
+                var residueprice1 = OrderModel.SKU.Where(x => x.ProductId == id);
                 residueprice += residueprice1.FirstOrDefault().UnitPrice * pp.residueNumber;
-                }
- 
-
-            Console.WriteLine($"OrderID: {OrderModel.OrderId} => Original price: {origprice.ToString("0.00")} | Rebate: {promoprice.ToString("0.00")} | Final price: {(promoprice + residueprice ).ToString("0.00")}");
+            }
+            OrderModel.OrderDiscountedTotal = residueprice;
+            PrintOrderDetails();
         }
 
         public void PrintOrderDetails()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"OrderID: {OrderModel.OrderId} => Original price: {OrderModel.OrderTotal.ToString("0.00")} | totalDiscount: {OrderModel.Discount.ToString("0.00")} | Final price: {(OrderModel.Discount + OrderModel.OrderDiscountedTotal).ToString("0.00")}");
+
         }
     }
 }

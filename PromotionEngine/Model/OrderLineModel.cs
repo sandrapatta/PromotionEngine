@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PromotionEngine.Model
+﻿namespace PromotionEngine.Model
 {
-  public class OrderLineModel
+    public class OrderLineModel
     {
         public int OrderLineId { get; set; }
         public decimal LineTotal { get; set; }

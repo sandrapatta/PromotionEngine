@@ -34,7 +34,7 @@ namespace PromotionEngine.Classes
             //get count of promoted products in order
             foreach (PromotionModel prom in Promotions)
             {
-                bool flagpromo = false;
+                bool flagpromo = true;
                 //update the residue value
                 foreach (KeyValuePair<char, int> key in prom.PromotionInfo)
                 {
