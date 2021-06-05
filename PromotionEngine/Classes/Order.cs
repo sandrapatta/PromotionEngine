@@ -10,31 +10,40 @@ namespace PromotionEngine.ProductModule
     {
         private OrderModel OrderModel;
         private IPromotionCalculator PromotionCalculator;
+        private ILogger Logger;
 
-        public Order(OrderModel orderModel, IPromotionCalculator promotionCalculator)
+        public Order(OrderModel orderModel, IPromotionCalculator promotionCalculator, ILogger logger)
         {
             OrderModel = orderModel;
             PromotionCalculator = promotionCalculator;
+            Logger = logger;
         }
 
         public void OrderDetails(IPromotionCalculator promotionCalculator)
         {
-            decimal promoprice;
-            List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel, out promoprice);
-
-            decimal origprice = OrderModel.SKU.Sum(x => x.UnitPrice);
-            OrderModel.OrderTotal = OrderModel.SKU.Sum(x => x.UnitPrice);
-            
-            decimal residueprice = 0;
-            foreach (var pp in promoprices)
+            try
             {
-                char id = pp.ProdId;
-                var residueprice1 = OrderModel.SKU.Where(x => x.ProductId == id);
-                residueprice += residueprice1.FirstOrDefault().UnitPrice * pp.residueNumber;
+                decimal promoprice;
+                List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel, out promoprice);
+
+                decimal origprice = OrderModel.SKU.Sum(x => x.UnitPrice);
+                OrderModel.OrderTotal = OrderModel.SKU.Sum(x => x.UnitPrice);
+
+                decimal residueprice = 0;
+                foreach (var pp in promoprices)
+                {
+                    char id = pp.ProdId;
+                    var residueprice1 = OrderModel.SKU.Where(x => x.ProductId == id);
+                    residueprice += residueprice1.FirstOrDefault().UnitPrice * pp.residueNumber;
+                }
+                OrderModel.OrderDiscountedTotal = residueprice;
+                OrderModel.Discount = promoprice;
+                PrintOrderDetails();
             }
-            OrderModel.OrderDiscountedTotal = residueprice;
-            OrderModel.Discount = promoprice;
-            PrintOrderDetails();
+            catch(Exception e)
+            {
+                Logger.LogInfo(e.Message);
+            }
         }
 
         public void PrintOrderDetails()

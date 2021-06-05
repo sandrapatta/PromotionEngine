@@ -41,9 +41,10 @@ namespace PromotionEngine
             OrderModel order3 = new OrderModel(3, new List<ProductModel>() { A, A, A, B, B, B, B, B, C, D, });
            
             IPromotionCalculator calculator = new PromotionCalculator(promotions);
-            IOrder order11 = new Order(order1, calculator);
-            IOrder order21 = new Order(order2, calculator);
-            IOrder order31 = new Order(order3, calculator);
+            ILogger Logger = new ConsoleLogger();
+            IOrder order11 = new Order(order1, calculator, Logger);
+            IOrder order21 = new Order(order2, calculator, Logger);
+            IOrder order31 = new Order(order3, calculator, Logger);
             List<IOrder> orders1 = new List<IOrder>() { order11, order21, order31 };
 
             //check if order meets promotion
