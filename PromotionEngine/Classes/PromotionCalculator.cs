@@ -15,9 +15,10 @@ namespace PromotionEngine.Classes
         {
             Promotions = promotions;
         }
-        public List<OrderPromo> GetPromotionDetails(OrderModel orderModel)
+        public List<OrderPromo> GetPromotionDetails(OrderModel orderModel, out decimal promvalue)
         {
-            decimal d = 0m;
+            Dictionary<int, decimal> promApplied = new Dictionary<int, decimal>();
+            Dictionary<int, int> promCount = new Dictionary<int, int>();
 
             List<OrderPromo> v = new List<OrderPromo>();
             foreach (var line in orderModel.SKU.GroupBy(info => info.ProductId)
@@ -28,41 +29,63 @@ namespace PromotionEngine.Classes
                 })
                 .OrderBy(x => x.product))
             {
-                v.Add(new OrderPromo() { PromId = line.product, residueNumber = line.Count });
+                v.Add(new OrderPromo() { ProdId = line.product, residueNumber = line.Count });
             }
-           
+
+            //no of times promo is applied
+            int PCount = 0;
+
+            int pProd = 0;
+
             //get count of promoted products in order
             foreach (PromotionModel prom in Promotions)
             {
-                bool flagpromo = true;
-                //update the residue value
+                //reset count for each promo
+                pProd = 0;
+                //get prom value and the prom count of products
                 foreach (KeyValuePair<char, int> key in prom.PromotionInfo)
                 {
-                    foreach (var p in v.Where(w => w.PromId == key.Key))
+                    if (v.Exists(w => w.ProdId == key.Key))
                     {
-                        if (flagpromo)
+                        var pVal = v.Single(w => w.ProdId == key.Key);
+                        pProd = pVal.residueNumber / key.Value;
+                        if (pProd > 0 && pProd >= PCount)
                         {
-                            int ppc = p.residueNumber;
-                            while (ppc >= key.Value)
-                            {
-                                d += prom.Price;
-                                ppc -= key.Value;
-                            }
+                            PCount = pProd;
                         }
-                        p.AppliedPromotionValue = d;
-                        //to overcome the remainer is ppc problem cos any p.residueNumber less than ppc will return ppc as remainder
-                        p.residueNumber = p.residueNumber / key.Value == 0 ? 0 : p.residueNumber % key.Value;
-
-                        //if a promotion is applied once it cannot be appled again (for any key that has mutiple products involved
-                        flagpromo = false;
-                        d = 0;
-
+                        else
+                        {
+                            PCount = 0;
+                        }
                     }
-                  
+                    else
+                    {
+                        PCount = 0;
+                    }
+
+                }
+                if (PCount > 0)
+                {
+                    // apply promotion value
+                    promApplied.Add(prom.PromotionID, PCount * prom.Price);
+                    promCount.Add(prom.PromotionID, PCount);
                 }
             }
-            return v;
+        
+            //Update residue values, i.e remove products used for promotion codes
+            foreach (KeyValuePair<int, int> key1 in promCount)
+            {
+                //find the promotion
+                var prom1 = Promotions.Single(c => c.PromotionID == key1.Key).PromotionInfo;
+                foreach(KeyValuePair<char, int> key2 in prom1)
+                {
+                    var vRec = v.Single(c => c.ProdId == key2.Key);
+                    vRec.residueNumber = vRec.residueNumber / key2.Value == 0 ? 0 : vRec.residueNumber % key2.Value;
 
+                }
+            }
+            promvalue = promApplied.Values.Sum();
+            return v;
 
         }
     }

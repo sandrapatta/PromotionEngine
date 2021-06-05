@@ -12,10 +12,7 @@ namespace PromotionEngine
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            //Create Products
-
-            //current promotions
+             //current promotions
             Dictionary<char, int> d1 = new Dictionary<char, int>();
             d1.Add('A', 3);
             Dictionary<char, int> d2 = new Dictionary<char, int>();
@@ -29,20 +26,25 @@ namespace PromotionEngine
                 new PromotionModel(2, d2, 45),
                 new PromotionModel(3, d3, 30)
             };
+
+            //create products
             ProductModel A = new ProductModel('A', 50, "Aprod");
             ProductModel B = new ProductModel('B', 30, "Aprod");
             ProductModel C = new ProductModel('C', 20, "Aprod");
             ProductModel D = new ProductModel('D', 15, "Aprod");
+
+            //create Orders
             List<OrderModel> orders = new List<OrderModel>();
-            OrderModel order1 = new OrderModel(1, new List<ProductModel>() { A, B, C });
+
+            OrderModel order1 = new OrderModel(1, new List<ProductModel>() { A,B, C });
             OrderModel order2 = new OrderModel(2, new List<ProductModel>() { A, A, A, A, A, B,B,B,B,B,C });
             OrderModel order3 = new OrderModel(3, new List<ProductModel>() { A, A, A, B, B, B, B, B, C, D, });
            
             IPromotionCalculator calculator = new PromotionCalculator(promotions);
-            
+            IOrder order11 = new Order(order1, calculator);
             IOrder order21 = new Order(order2, calculator);
             IOrder order31 = new Order(order3, calculator);
-            List<IOrder> orders1 = new List<IOrder>() { order21, order31 };
+            List<IOrder> orders1 = new List<IOrder>() { order11, order21, order31 };
 
             //check if order meets promotion
             foreach (Order ord in orders1)

@@ -19,21 +19,21 @@ namespace PromotionEngine.ProductModule
 
         public void OrderDetails(IPromotionCalculator promotionCalculator)
         {
-            List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel);
+            decimal promoprice;
+            List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel, out promoprice);
 
             decimal origprice = OrderModel.SKU.Sum(x => x.UnitPrice);
             OrderModel.OrderTotal = OrderModel.SKU.Sum(x => x.UnitPrice);
-            decimal promoprice = promoprices.Sum(x => x.AppliedPromotionValue);
-           
-            OrderModel.Discount = promoprices.Sum(x => x.AppliedPromotionValue);
+            
             decimal residueprice = 0;
             foreach (var pp in promoprices)
             {
-                char id = pp.PromId;
+                char id = pp.ProdId;
                 var residueprice1 = OrderModel.SKU.Where(x => x.ProductId == id);
                 residueprice += residueprice1.FirstOrDefault().UnitPrice * pp.residueNumber;
             }
             OrderModel.OrderDiscountedTotal = residueprice;
+            OrderModel.Discount = promoprice;
             PrintOrderDetails();
         }
 

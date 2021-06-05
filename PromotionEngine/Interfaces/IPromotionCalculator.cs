@@ -5,6 +5,6 @@ namespace PromotionEngine.Interfaces
 {
     public interface IPromotionCalculator
     {
-        public List<OrderPromo> GetPromotionDetails(OrderModel orderModel);
+        public List<OrderPromo> GetPromotionDetails(OrderModel orderModel,out decimal promvalue);
     }
 }
