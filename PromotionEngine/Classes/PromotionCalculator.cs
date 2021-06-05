@@ -17,6 +17,7 @@ namespace PromotionEngine.Classes
         }
         public List<OrderPromo> GetPromotionDetails(OrderModel orderModel, out decimal promvalue)
         {
+
             Dictionary<int, decimal> promApplied = new Dictionary<int, decimal>();
             Dictionary<int, int> promCount = new Dictionary<int, int>();
 
@@ -40,6 +41,7 @@ namespace PromotionEngine.Classes
             //get count of promoted products in order
             foreach (PromotionModel prom in Promotions)
             {
+                //validate product 
                 //reset count for each promo
                 pProd = 0;
                 //get prom value and the prom count of products

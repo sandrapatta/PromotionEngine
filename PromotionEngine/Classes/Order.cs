@@ -23,6 +23,7 @@ namespace PromotionEngine.ProductModule
         {
             try
             {
+                 //yet to implement, Validate order
                 decimal promoprice;
                 List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel, out promoprice);
 
