@@ -23,9 +23,20 @@ namespace PromotionEngine.ProductModule
         {
             try
             {
-                 //yet to implement, Validate order
+                List<OrderLineModel> orderLines = new List<OrderLineModel>();
+                foreach (var line in OrderModel.SKU.GroupBy(info => info.ProductId)
+                .Select(group => new
+                {
+                    product = group.Key,
+                    Count = group.Count()
+                })
+                .OrderBy(x => x.product))
+                {
+                    orderLines.Add(new OrderLineModel() {  OrderLineId =1, ProductId = line.product, Quantity = line.Count });
+                }
+                //yet to implement, Validate order
                 decimal promoprice;
-                List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(OrderModel, out promoprice);
+                List<OrderPromo> promoprices = promotionCalculator.GetPromotionDetails(orderLines, out promoprice);
 
                 decimal origprice = OrderModel.SKU.Sum(x => x.UnitPrice);
                 OrderModel.OrderTotal = OrderModel.SKU.Sum(x => x.UnitPrice);

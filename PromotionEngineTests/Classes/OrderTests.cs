@@ -40,7 +40,7 @@ namespace PromotionEngine.Classes.Tests
             Mock<IPromotionCalculator> calculator = new Mock<IPromotionCalculator>(MockBehavior.Strict);
             List<OrderPromo> orRes = new List<OrderPromo>();
             orRes.Add(new OrderPromo());
-            calculator.Setup(s => s.GetPromotionDetails(order1, out outvalue)).Returns(orRes);
+            //calculator.Setup(s => s.GetPromotionDetails(order1, out outvalue)).Returns(orRes);
             IOrder order11 = new Order(order1, calculator.Object, Logger);
             Assert.IsTrue(orRes.Count > 0);
         }

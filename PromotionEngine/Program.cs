@@ -45,7 +45,7 @@ namespace PromotionEngine
             IOrder order11 = new Order(order1, calculator, Logger);
             IOrder order21 = new Order(order2, calculator, Logger);
             IOrder order31 = new Order(order3, calculator, Logger);
-            List<IOrder> orders1 = new List<IOrder>() { order11, order21, order31 };
+            List<IOrder> orders1 = new List<IOrder>() { order21, order21, order31 };
 
             //check if order meets promotion
             foreach (Order ord in orders1)

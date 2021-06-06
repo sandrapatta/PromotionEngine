@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using PromotionEngine.Classes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PromotionEngine.Classes.Tests
 {
@@ -10,5 +11,5 @@ namespace PromotionEngine.Classes.Tests
         {
             Assert.Fail();
         }
-    }
+     }
 }

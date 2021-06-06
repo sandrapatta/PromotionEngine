@@ -1,9 +1,7 @@
 ﻿using PromotionEngine.Interfaces;
 using PromotionEngine.Model;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PromotionEngine.Classes
 {
@@ -15,80 +13,61 @@ namespace PromotionEngine.Classes
         {
             Promotions = promotions;
         }
-        public List<OrderPromo> GetPromotionDetails(OrderModel orderModel, out decimal promvalue)
+        public List<OrderPromo> GetPromotionDetails(List<OrderLineModel> order, out decimal promvalue)
         {
-
             Dictionary<int, decimal> promApplied = new Dictionary<int, decimal>();
             Dictionary<int, int> promCount = new Dictionary<int, int>();
-
-            List<OrderPromo> v = new List<OrderPromo>();
-            foreach (var line in orderModel.SKU.GroupBy(info => info.ProductId)
-                .Select(group => new
-                {
-                    product = group.Key,
-                    Count = group.Count()
-                })
-                .OrderBy(x => x.product))
-            {
-                v.Add(new OrderPromo() { ProdId = line.product, residueNumber = line.Count });
-            }
-
-            //no of times promo is applied
-            int PCount = 0;
-
-            int pProd = 0;
 
             //get count of promoted products in order
             foreach (PromotionModel prom in Promotions)
             {
-                //validate product 
-                //reset count for each promo
-                pProd = 0;
-                //get prom value and the prom count of products
-                foreach (KeyValuePair<char, int> key in prom.PromotionInfo)
+                if (isValid(prom.PromotionID, order))
                 {
-                    if (v.Exists(w => w.ProdId == key.Key))
-                    {
-                        var pVal = v.Single(w => w.ProdId == key.Key);
-                        pProd = pVal.residueNumber / key.Value;
-                        if (pProd > 0 && pProd >= PCount)
-                        {
-                            PCount = pProd;
-                        }
-                        else
-                        {
-                            PCount = 0;
-                        }
-                    }
-                    else
-                    {
-                        PCount = 0;
-                    }
-
-                }
-                if (PCount > 0)
-                {
-                    // apply promotion value
-                    promApplied.Add(prom.PromotionID, PCount * prom.Price);
-                    promCount.Add(prom.PromotionID, PCount);
-                }
-            }
-        
-            //Update residue values, i.e remove products used for promotion codes
-            foreach (KeyValuePair<int, int> key1 in promCount)
-            {
-                //find the promotion
-                var prom1 = Promotions.Single(c => c.PromotionID == key1.Key).PromotionInfo;
-                foreach(KeyValuePair<char, int> key2 in prom1)
-                {
-                    var vRec = v.Single(c => c.ProdId == key2.Key);
-                    vRec.residueNumber = vRec.residueNumber / key2.Value == 0 ? 0 : vRec.residueNumber % key2.Value;
-
+                    // calculate values
+                    int nofTimesPromapp = GetPromVlaues(prom.PromotionID, order);
+                    promApplied.Add(prom.PromotionID, nofTimesPromapp * prom.Price);
+                    //aggregate the values
+                    //calculate residue
                 }
             }
             promvalue = promApplied.Values.Sum();
-            return v;
 
+            return  new List<OrderPromo>();
+
+        }
+
+        public bool isValid(int promID, List<OrderLineModel> order)
+        {
+
+            PromotionModel currPromotion = Promotions.Single(p => p.PromotionID == promID);
+            bool validity = false;
+            //get prom value and the prom count of products
+            foreach (KeyValuePair<char, int> promProds in currPromotion.PromotionInfo)
+            {
+                validity = (order.Exists(w => w.ProductId == promProds.Key && w.Quantity >= promProds.Value)) ? true : false;
+            }
+
+            return validity;
+
+        }
+
+        public int GetPromVlaues(int promID, List<OrderLineModel> order)
+        {
+            Dictionary<int, decimal> currPromValueSet = new Dictionary<int, decimal>();
+
+            PromotionModel validPromotion = Promotions.Single(x => x.PromotionID == promID);
+            //set it to the max value
+            int noofTimesApplicable = validPromotion.PromotionInfo.Values.Max();
+            foreach (KeyValuePair<char, int> promProds in validPromotion.PromotionInfo)
+            {
+                if (order.Exists(x => x.ProductId == promProds.Key))
+                {
+                    OrderLineModel Ordeline = order.Single(x => x.ProductId == promProds.Key);
+                    noofTimesApplicable = (Ordeline.Quantity / promProds.Value < noofTimesApplicable) ?
+                                           Ordeline.Quantity / promProds.Value : noofTimesApplicable;
+                }
+            }
+            return  noofTimesApplicable;
         }
     }
 }
